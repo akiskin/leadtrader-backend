@@ -15,7 +15,13 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+    \App\Http\Resources\User::withoutWrapping();
+    return \App\Http\Resources\User::make($request->user());
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('products', \App\Http\Controllers\ProductController::class)->only('index');
+    Route::apiResource('sellcampaigns', \App\Http\Controllers\SellCampaignController::class);
 });
 
 Route::post('/login', [\App\Http\Controllers\LoginController::class, 'authenticate']);
