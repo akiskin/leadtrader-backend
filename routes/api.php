@@ -22,6 +22,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('products', \App\Http\Controllers\ProductController::class)->only('index');
     Route::apiResource('sellcampaigns', \App\Http\Controllers\SellCampaignController::class);
+    Route::apiResource('buycampaigns', \App\Http\Controllers\BuyCampaignController::class);
 });
 
 Route::post('/login', [\App\Http\Controllers\LoginController::class, 'authenticate']);
