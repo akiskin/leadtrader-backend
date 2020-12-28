@@ -23,6 +23,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('products', \App\Http\Controllers\ProductController::class)->only('index');
     Route::apiResource('sellcampaigns', \App\Http\Controllers\SellCampaignController::class);
     Route::apiResource('buycampaigns', \App\Http\Controllers\BuyCampaignController::class);
+
+    Route::post('/leads/bulk', [\App\Http\Controllers\LeadController::class, 'bulk']);
+    Route::apiResource('leads', \App\Http\Controllers\LeadController::class)->only('store');
+
 });
 
 Route::post('/login', [\App\Http\Controllers\LoginController::class, 'authenticate']);

@@ -48,4 +48,9 @@ class SellCampaign extends Model
     {
         return $this->belongsTo(Product::class);
     }
+
+    public function leads(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Lead::class);
+    }
 }

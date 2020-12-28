@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Arr;
 
 class SellCampaign extends JsonResource
 {
@@ -17,7 +18,7 @@ class SellCampaign extends JsonResource
         return parent::toArray($request) +
         [
             'product' => Product::make($this->product),
-            'leads' => 0,
+            'leads_total' => $this->when(Arr::exists($this->resource,'leads_count'), $this->leads_count),
             'leads_sold' => 0,
             'leads_rejected' => 0,
             'earned' => 0.0,

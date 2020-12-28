@@ -17,7 +17,7 @@ class BuyCampaignController extends Controller
     {
         $user = Auth::user();
         $client = $user->client;
-        $productId = $request->get('product_id');
+        $productId = $request->input('product_id');
 
         $campaign = new BuyCampaign();
         $campaign->fill($request->all());

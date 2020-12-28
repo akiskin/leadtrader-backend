@@ -10,7 +10,8 @@ class SellCampaignController extends Controller
 {
     public function index(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
-        return \App\Http\Resources\SellCampaign::collection(SellCampaign::all());
+        //return \App\Http\Resources\SellCampaign::collection(SellCampaign::all());
+        return \App\Http\Resources\SellCampaign::collection(SellCampaign::withCount('leads')->get());
     }
 
     public function store(Request $request): \App\Http\Resources\SellCampaign

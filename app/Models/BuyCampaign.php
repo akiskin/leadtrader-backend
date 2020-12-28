@@ -21,6 +21,10 @@ class BuyCampaign extends Model
         'buy_rules'
     ];
 
+    protected $casts = [
+        'buy_rules' => 'array'
+    ];
+
     protected static function boot()
     {
         parent::boot();
