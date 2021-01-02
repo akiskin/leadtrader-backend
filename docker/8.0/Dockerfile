@@ -27,6 +27,11 @@ RUN apt-get update \
        php8.0-intl php8.0-readline \
        php8.0-msgpack php8.0-igbinary php8.0-ldap \
        php8.0-redis \
+       php-xdebug \
+    && echo "[XDebug]" > /etc/php/8.0/cli/php.ini \
+    && echo "zend_extension="$(find /usr/lib/php/20200930/ -name xdebug.so)" > /etc/php/8.0/cli/php.ini" \
+    && echo "xdebug.mode = debug" >> /etc/php/8.0/cli/php.ini \
+    && echo "xdebug.client_host=host.docker.internal" >> /etc/php/8.0/cli/php.ini \
     && php -r "readfile('http://getcomposer.org/installer');" | php -- --install-dir=/usr/bin/ --filename=composer \
     && curl -sL https://deb.nodesource.com/setup_15.x | bash - \
     && apt-get install -y nodejs \
