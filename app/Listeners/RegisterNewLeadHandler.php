@@ -3,9 +3,11 @@
 namespace App\Listeners;
 
 use App\Events\RegisterNewLead;
+use App\Jobs\PrepareLead;
 use App\Models\Lead;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class RegisterNewLeadHandler
@@ -24,14 +26,25 @@ class RegisterNewLeadHandler
 
         $lead->fill([
             'info' => $event->generalInfo, //save to JSON as is
-            'data_path' => json_encode($event->privateInfo), //this is temporary. Will be in encrypted s3 file
             'data_secret' => Str::random(32),
-            'status' => 1 //TODO: enum with statuses
+            'status' => Lead::STATUS_NEW
         ]);
 
         $lead->save();
 
-        //TODO dispatch event/job for future processing
+        $fileName = storage_path('app/leads') . '/' . $lead->getKey() . '.zip';
 
+        //Generate ZIP file with private info
+        $zip = new \ZipArchive();
+        $zip->open($fileName, \ZipArchive::CREATE);
+        $zip->addFromString('private.json', json_encode($event->privateInfo));
+        $zip->setEncryptionName('private.json', \ZipArchive::EM_AES_256, $lead->data_secret);
+        $zip->close();
+
+        $lead->data_path = $fileName;
+        $lead->save();
+
+
+        PrepareLead::dispatch($lead->getKey());
     }
 }

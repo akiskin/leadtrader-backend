@@ -1,6 +1,8 @@
 <?php
 namespace App\Integration;
 
+use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -24,11 +26,11 @@ class ODS
         return $response->json();
     }
 
-    public static function reprocessRawData(string $data)
+    public static function reprocessRawData(string $data, $extension = 'json')
     {
         $url = config('integration.ODS.bs_api_url') . '/reprocess_transactions';
 
-        $response = Http::attach('file', $data, 'test.xml')->withHeaders([
+        $response = Http::attach('file', $data, 'test.' . $extension)->withHeaders([
             'X-API-KEY' => config('integration.ODS.bs_api_key'),
             'Accept' => 'application/json',
             'X-OUTPUT-VERSION' => '20190901'
@@ -91,5 +93,73 @@ class ODS
 
         return $response->body();
 
+    }
+
+    public static function extractDecisioningData(array $rawData): array
+    {
+        $returnData = [
+            'decisionPoints' => []
+        ];
+
+
+        //Extract DMs
+        if (Arr::exists($rawData, 'decisionMetrics')) {
+            foreach ($rawData['decisionMetrics'] as $singleDm) {
+                $value = null;
+
+                if ($singleDm['type'] === 'money' || $singleDm['type'] === 'integer') {
+                    $value = floatval($singleDm['value']);
+                } else {
+                    if (Str::contains($singleDm['value'], 'Once off')) {
+                        $value = floatval(Str::between($singleDm['value'], '$', '(Once'));
+                    }
+                }
+
+
+                if ($value === null) {
+                    continue;
+                }
+                $returnData['decisionPoints'][] = [
+                    'id' => $singleDm['id'],
+                    'value' => $value
+                ];
+            }
+        }
+
+        //Get last trans date
+        $lastTransactionDate = Carbon::now();
+        $anyTransactionPresent = false;
+
+        foreach ($rawData['banks'] as $bankData) {
+            if (!Arr::exists($bankData, 'bankAccounts')) {
+                continue;
+            }
+
+            foreach ($bankData['bankAccounts'] as $account) {
+                if (!Arr::exists($account, 'transactions')) {
+                    continue;
+                }
+
+                if (count($account['transactions']) == 0) {
+                    continue;
+                }
+
+                $anyTransactionPresent = true;
+
+                $localLatest = Carbon::createFromFormat('Y-m-d', $account['transactions'][0]['date']);
+                if ($localLatest->lessThan($lastTransactionDate)) {
+                    $lastTransactionDate = $localLatest;
+                }
+            }
+        }
+
+        if ($anyTransactionPresent) {
+            $returnData['decisionPoints'][] = [
+                'id' => 'LAST_TRANS_DATE',
+                'value' => $lastTransactionDate
+            ];
+        }
+
+        return $returnData;
     }
 }

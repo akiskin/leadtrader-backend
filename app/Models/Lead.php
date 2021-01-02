@@ -23,6 +23,13 @@ class Lead extends Model
         'metrics' => 'array'
     ];
 
+    const STATUS_UNASSIGNED = 0;
+    const STATUS_NEW = 1;
+    const PREPARED = 100;
+    const PREPARED_ERROR_NODOCID = 101;
+    const PREPARED_ERROR_NORAWDATA = 102;
+    const PREPARED_ERROR_REPROCESSING = 103;
+
     protected static function boot()
     {
         parent::boot();
