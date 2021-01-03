@@ -30,6 +30,11 @@ class Lead extends Model
     const PREPARED_ERROR_NORAWDATA = 102;
     const PREPARED_ERROR_REPROCESSING = 103;
 
+    const SOLD = 200;
+    const NOT_SOLD_NO_MATCH = 201;
+    const SELLING_NO_CURRENT_MATCH = 210;
+
+
     protected static function boot()
     {
         parent::boot();
@@ -39,7 +44,7 @@ class Lead extends Model
         });
 
         static::updating(function (Lead $lead) {
-            if ($lead->wasChanged('status')) {
+            if ($lead->isDirty('status')) {
                 $lead->status_modified_at = Date::now();
             }
         });
