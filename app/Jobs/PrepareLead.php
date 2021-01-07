@@ -53,5 +53,9 @@ class PrepareLead implements ShouldQueue, ShouldBeUnique
         } catch (\Exception $exception) {
             //TODO In some cases we want to ->release() this, in some ->fail() based on Exception
         }
+
+        if ($lead->sellCampaign()->currentlySelling()) {
+            SellLead::dispatch($lead->getKey());
+        }
     }
 }

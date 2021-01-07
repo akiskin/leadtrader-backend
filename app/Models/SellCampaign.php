@@ -22,6 +22,9 @@ class SellCampaign extends Model
         'expiration' => 'int'
     ];
 
+    const STATUS_UNKNOWN = 0;
+    const STATUS_ACTIVE = 10;
+
     protected static function boot()
     {
         parent::boot();
@@ -57,5 +60,16 @@ class SellCampaign extends Model
     public function leads(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Lead::class);
+    }
+
+    public function currentlySelling(): bool
+    {
+        return $this->status === self::STATUS_ACTIVE;
+    }
+
+    public function dispatchSellJobs()
+    {
+        //TODO This should be called when campaign is started/unpaused
+        //Get all leads in PREPARED -> dispatch Sell job
     }
 }
