@@ -22,8 +22,11 @@ class BuyCampaign extends Model
     ];
 
     protected $casts = [
-        'buy_rules' => 'array'
+        'buy_rules' => 'array',
+        'max_price' => 'float'
     ];
+
+    const ACTIVE = 10;
 
     protected static function boot()
     {

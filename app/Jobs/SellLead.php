@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Helpers\LeadProcessing;
 use App\Models\Lead;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
@@ -35,21 +36,21 @@ class SellLead implements ShouldQueue, ShouldBeUniqueUntilProcessing
 
     public function handle()
     {
-        $lead = Lead::findOrFail($this->leadId);
+        $lead = Lead::find($this->leadId);
 
-        $currentIteration = Arr::has($lead->info, 'sell_iteration') ? $lead->info['sell_iteration'] : 0;
-
-        if ($currentIteration < 3) {
-            $lead->status = Lead::SELLING_NO_CURRENT_MATCH;
-            $lead->info = array_merge($lead->info, ['sell_iteration' => $currentIteration + 1]);
-            $lead->save();
-
-            SellLead::dispatch($this->leadId)->delay(now()->addSeconds(20));
+        if (!$lead) {
             return;
         }
 
-        $lead->status = Lead::NOT_SOLD_NO_MATCH;
-        $lead->save();
+        if ($lead->status < Lead::PREPARED || $lead->status >= Lead::SOLD) {
+            return; //already processed or discarded?
+        }
 
+
+        try {
+            LeadProcessing::sell($lead);
+        } catch (\Exception $exception) {
+            //TODO In some cases we want to ->release() this, in some ->fail() based on Exception
+        }
     }
 }

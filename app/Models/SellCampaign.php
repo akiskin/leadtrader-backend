@@ -17,6 +17,11 @@ class SellCampaign extends Model
         'expiration'
     ];
 
+    protected $casts = [
+        'stop_price' => 'float',
+        'expiration' => 'int'
+    ];
+
     protected static function boot()
     {
         parent::boot();
