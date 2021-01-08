@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\LeadForSeller;
+use App\Models\Lead;
 use App\Models\SellCampaign;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -11,7 +14,10 @@ class SellCampaignController extends Controller
     public function index(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         //return \App\Http\Resources\SellCampaign::collection(SellCampaign::all());
-        return \App\Http\Resources\SellCampaign::collection(SellCampaign::withCount('leads')->get());
+        return \App\Http\Resources\SellCampaign::collection(
+            SellCampaign::withCount(['leads as leads_total', 'leads as leads_sold' => function (Builder $query) {
+                $query->where('status', '=', Lead::SOLD);
+        }])->get());
     }
 
     public function store(Request $request): \App\Http\Resources\SellCampaign
@@ -64,5 +70,10 @@ class SellCampaignController extends Controller
     public function destroy(SellCampaign $sellCampaign)
     {
         //
+    }
+
+    public function leads(SellCampaign $sellCampaign)
+    {
+        return LeadForSeller::collection($sellCampaign->leadsWithTransactions);
     }
 }

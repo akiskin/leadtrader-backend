@@ -54,4 +54,14 @@ class Lead extends Model
     {
         return $this->belongsTo(SellCampaign::class);
     }
+
+    public function transactions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Transaction::class);
+    }
+
+    public function getTransactionAttribute()
+    {
+        return $this->transactions()->first();
+    }
 }

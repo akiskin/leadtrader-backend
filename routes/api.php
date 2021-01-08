@@ -22,7 +22,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('products', \App\Http\Controllers\ProductController::class)->only('index');
     Route::apiResource('sellcampaigns', \App\Http\Controllers\SellCampaignController::class);
+    Route::get('/sellcampaigns/{sellCampaign}/leads', [\App\Http\Controllers\SellCampaignController::class, 'leads']);
+
     Route::apiResource('buycampaigns', \App\Http\Controllers\BuyCampaignController::class);
+    Route::get('/buycampaigns/{buyCampaign}/leads', [\App\Http\Controllers\BuyCampaignController::class, 'leads']);
 
     Route::post('/leads/bulk', [\App\Http\Controllers\LeadController::class, 'bulk']);
     Route::apiResource('leads', \App\Http\Controllers\LeadController::class)->only('store');

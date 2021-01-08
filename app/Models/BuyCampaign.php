@@ -59,4 +59,14 @@ class BuyCampaign extends Model
     {
         return $this->belongsTo(Product::class);
     }
+
+    public function transactions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Transaction::class);
+    }
+
+    public function transactionsWithLeads(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->transactions()->with('lead');
+    }
 }

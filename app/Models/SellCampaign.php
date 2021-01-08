@@ -62,6 +62,11 @@ class SellCampaign extends Model
         return $this->hasMany(Lead::class);
     }
 
+    public function leadsWithTransactions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Lead::class)->with('transactions');
+    }
+
     public function currentlySelling(): bool
     {
         return $this->status === self::STATUS_ACTIVE;

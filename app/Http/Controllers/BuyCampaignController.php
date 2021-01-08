@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\TransactionForBuyer;
 use App\Models\BuyCampaign;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -63,5 +64,10 @@ class BuyCampaignController extends Controller
     public function destroy(BuyCampaign $buyCampaign)
     {
         //
+    }
+
+    public function leads(BuyCampaign $buyCampaign): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    {
+        return TransactionForBuyer::collection($buyCampaign->transactionsWithLeads);
     }
 }
