@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\LeadProcessing;
 use App\Http\Resources\TransactionForBuyer;
 use App\Models\BuyCampaign;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class BuyCampaignController extends Controller
@@ -70,4 +73,28 @@ class BuyCampaignController extends Controller
     {
         return TransactionForBuyer::collection($buyCampaign->transactionsWithLeads);
     }
+
+    public function leadsForExport(Request $request, BuyCampaign $buyCampaign): \Illuminate\Http\JsonResponse
+    {
+        $start = $request->query('start');
+        $end = $request->query('end');
+
+        $transactions = $buyCampaign->transactionsWithLeads()
+            ->when($start, function(Builder $q) use ($start) {
+                $q->where('created_at', '>=', Carbon::parse($start));
+            })
+            ->when($end, function(Builder $q) use ($end) {
+                $q->where('created_at', '<=', Carbon::parse($end));
+            })
+            ->get();
+
+        $returnData = [];
+
+        foreach ($transactions as $transaction) {
+            $returnData[] = ['purchase_date' => $transaction->created_at] + LeadProcessing::leadExportData($transaction->lead);
+        }
+
+        return response()->json($returnData);
+    }
+
 }

@@ -26,6 +26,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::apiResource('buycampaigns', \App\Http\Controllers\BuyCampaignController::class);
     Route::get('/buycampaigns/{buyCampaign}/leads', [\App\Http\Controllers\BuyCampaignController::class, 'leads']);
+    Route::get('/buycampaigns/{buyCampaign}/leads/export', [\App\Http\Controllers\BuyCampaignController::class, 'leadsForExport']);
 
     Route::post('/leads/bulk', [\App\Http\Controllers\LeadController::class, 'bulk']);
     Route::apiResource('leads', \App\Http\Controllers\LeadController::class)->only('store');

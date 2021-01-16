@@ -147,4 +147,58 @@ class LeadProcessing
 
         });
     }
+
+    public static function leadExportData(Lead $lead): array
+    {
+        $returnData = [
+            'id' => $lead->id,
+        ];
+
+        if (Arr::exists($lead->info, 'document_id')) {
+            $returnData['document_id'] = $lead->info['document_id'];
+        }
+
+        if (Arr::exists($lead->info, 'loan_purpose')) {
+            $returnData['loan_purpose'] = $lead->info['loan_purpose'];
+        }
+
+        if (Arr::exists($lead->info, 'loan_amount')) {
+            $returnData['loan_amount'] = $lead->info['loan_amount'];
+        }
+
+
+
+        if ($lead->data_path && is_string($lead->data_path)) {
+
+            //Save rawData files inside existing ZIP file
+            $zip = new \ZipArchive();
+            if ($zip->open($lead->data_path) === TRUE) {
+
+                if ($zip->locateName('private.json') !== false) {
+
+                    $options = [
+                        'zip' => [
+                            'password' => $lead->data_secret
+                        ]
+                    ];
+
+                    $context = stream_context_create($options);
+                    $privateString = file_get_contents('zip://' . $lead->data_path . '#private.json', false, $context);
+                    if ($privateString) {
+                        $privateData = json_decode($privateString, true);
+
+                        $returnData = array_merge($returnData, $privateData);
+                    }
+
+                }
+                $zip->close();
+            }
+
+        }
+
+
+
+
+        return $returnData;
+    }
 }
