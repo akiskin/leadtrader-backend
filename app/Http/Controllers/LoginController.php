@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Laravel\Fortify\Contracts\CreatesNewUsers;
+use Laravel\Fortify\Contracts\RegisterResponse;
 
 class LoginController extends Controller
 {
@@ -38,5 +41,19 @@ class LoginController extends Controller
         $request->session()->regenerateToken();
 
         return response()->noContent();
+    }
+
+    /**
+     * Create a new registered user.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Laravel\Fortify\Contracts\CreatesNewUsers  $creator
+     * @return \Laravel\Fortify\Contracts\RegisterResponse
+     */
+    public function register(Request $request,
+                          CreatesNewUsers $creator): RegisterResponse
+    {
+        event(new Registered($user = $creator->create($request->all())));
+        return app(RegisterResponse::class);
     }
 }
