@@ -17,13 +17,13 @@ class LeadProcessing
 {
     public static function prepare(Lead $lead)
     {
-        if (!Arr::exists($lead->info, 'documentId')) {
+        if (!Arr::exists($lead->info, 'document_id')) {
             $lead->status = Lead::PREPARED_ERROR_NODOCID;
             $lead->save();
             return; //unrecoverable error, no need to retry job
         }
 
-        $documentId = $lead->info['documentId'];
+        $documentId = $lead->info['document_id'];
 
         try {
             $rawData = ODS::retrieveSubmissionData($documentId);
