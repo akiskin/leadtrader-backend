@@ -13,7 +13,7 @@ class ODS
     {
         $url = config('integration.ODS.bf_api_url') . "/get-submission/{$documentId}/ARGH?returnDocument=true";
 
-        $response = Http::withHeaders([
+        $response = Http::timeout(30)->withHeaders([
             'X-API-KEY' => config('integration.ODS.bf_api_key'),
             'Content-Type' => 'application/json',
             'Accept' => 'application/json'
@@ -30,7 +30,7 @@ class ODS
     {
         $url = config('integration.ODS.bs_api_url') . '/reprocess_transactions';
 
-        $response = Http::attach('file', $data, 'test.' . $extension)->withHeaders([
+        $response = Http::attach('file', $data, 'test.' . $extension)->timeout(60)->withHeaders([
             'X-API-KEY' => config('integration.ODS.bs_api_key'),
             'Accept' => 'application/json',
             'X-OUTPUT-VERSION' => '20190901'
@@ -39,6 +39,9 @@ class ODS
         if (!$response->successful()) {
             throw new \Exception($response->body());
         }
+
+
+        $response = $response->json();
 
         $errors = $response['errors'];
         if (count($errors) > 0) {
@@ -68,7 +71,7 @@ class ODS
                 continue;
             }
 
-            $jsonFileContent = json_decode($zip->getFromIndex($i));
+            $jsonFileContent = json_decode($zip->getFromIndex($i), true);
         }
 
         unlink($fullPath);

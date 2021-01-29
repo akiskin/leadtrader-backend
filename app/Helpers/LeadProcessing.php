@@ -46,24 +46,32 @@ class LeadProcessing
         }
 
 
-        $decisioningData = ODS::extractDecisioningData($reprocessedRawData);
+        try {
+            $decisioningData = ODS::extractDecisioningData($reprocessedRawData);
 
 
-        //Save rawData files inside existing ZIP file
-        $zip = new \ZipArchive();
-        $zip->open($lead->data_path);
-        $zip->addFromString('ods_original.json', json_encode($rawData));
-        $zip->setEncryptionName('ods_original.json', \ZipArchive::EM_AES_256, $lead->data_secret);
+            //Save rawData files inside existing ZIP file
+            $zip = new \ZipArchive();
+            $zip->open($lead->data_path);
+            $zip->addFromString('ods_original.json', json_encode($rawData));
+            $zip->setEncryptionName('ods_original.json', \ZipArchive::EM_AES_256, $lead->data_secret);
 
-        $zip->addFromString('ods_reprocessed.json', json_encode($reprocessedRawData));
-        $zip->setEncryptionName('ods_reprocessed.json', \ZipArchive::EM_AES_256, $lead->data_secret);
-        $zip->close();
+            $zip->addFromString('ods_reprocessed.json', json_encode($reprocessedRawData));
+            $zip->setEncryptionName('ods_reprocessed.json', \ZipArchive::EM_AES_256, $lead->data_secret);
+            $zip->close();
 
 
-        $lead->metrics = $decisioningData;
+            $lead->metrics = $decisioningData;
 
-        $lead->status = Lead::PREPARED;
-        $lead->save();
+            $lead->status = Lead::PREPARED;
+            $lead->save();
+        } catch (\Exception $exception) {
+            //TODO make different exceptions, as some might be recoverable, some - not
+            //TODO logging
+            $lead->status = Lead::PREPARED_ERROR_POSTPROCESSING;
+            $lead->save();
+            return;
+        }
 
     }
 

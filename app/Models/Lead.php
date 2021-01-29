@@ -29,6 +29,7 @@ class Lead extends Model
     const PREPARED_ERROR_NODOCID = 101;
     const PREPARED_ERROR_NORAWDATA = 102;
     const PREPARED_ERROR_REPROCESSING = 103;
+    const PREPARED_ERROR_POSTPROCESSING = 103;
 
     const SOLD = 200;
     const NOT_SOLD_NO_MATCH = 201;

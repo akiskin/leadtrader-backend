@@ -26,7 +26,7 @@ class PrepareLead implements ShouldQueue, ShouldBeUnique
         $this->leadId = $leadId;
     }
 
-    public function uniqueId()
+    public function uniqueId(): string
     {
         return $this->leadId;
     }
@@ -54,7 +54,9 @@ class PrepareLead implements ShouldQueue, ShouldBeUnique
             //TODO In some cases we want to ->release() this, in some ->fail() based on Exception
         }
 
-        if ($lead->sellCampaign()->currentlySelling()) {
+        $lead->refresh();
+
+        if ($lead->status == Lead::PREPARED && $lead->sellCampaign->currentlySelling()) {
             SellLead::dispatch($lead->getKey());
         }
     }
