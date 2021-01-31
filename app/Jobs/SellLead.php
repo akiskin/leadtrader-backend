@@ -23,6 +23,11 @@ class SellLead implements ShouldQueue, ShouldBeUniqueUntilProcessing
         $this->leadId = $leadId;
     }
 
+    public function uniqueId(): string
+    {
+        return $this->leadId;
+    }
+
     public function tags(): array
     {
         return ['lead:'.$this->leadId];
@@ -30,7 +35,7 @@ class SellLead implements ShouldQueue, ShouldBeUniqueUntilProcessing
 
     public function middleware(): array
     {
-        return [new WithoutOverlapping()];
+        return [(new WithoutOverlapping())];
     }
 
     public function handle()
