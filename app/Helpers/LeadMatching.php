@@ -32,7 +32,7 @@ class LeadMatching
     {
         //TODO check campaign's (and client's?) budget left
         return BuyCampaign::query()
-            ->where('status', '=', BuyCampaign::ACTIVE)
+            ->where('status', '=', BuyCampaign::STATUS_ACTIVE)
             ->where('product_id', '=', $productId)
             ->where('max_price', '>=', $maxPrice)
             ->when($excludeClientById, function ($q) use ($excludeClientById) {

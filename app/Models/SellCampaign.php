@@ -22,8 +22,10 @@ class SellCampaign extends Model
         'expiration' => 'int'
     ];
 
-    const STATUS_UNKNOWN = 0;
+    const STATUS_NEW = 0;
     const STATUS_ACTIVE = 10;
+    const STATUS_PAUSED = 20;
+    const STATUS_ARCHIVED = 30;
 
     protected static function boot()
     {
