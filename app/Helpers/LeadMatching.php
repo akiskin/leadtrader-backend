@@ -6,6 +6,7 @@ use App\DecisionPoints\GamblingDecisionPoint;
 use App\Models\BuyCampaign;
 use App\Models\Lead;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
 
 class LeadMatching
 {
@@ -13,6 +14,8 @@ class LeadMatching
     {
         //Don't sell back to lead's owner - see #3 param
         $matches = self::fetchMatchingBuyCampaigns($lead->sellCampaign->product->getKey(), $lead->sellCampaign->stop_price, $lead->sellCampaign->client->getKey());
+
+        Log::critical('matched: ' . count($matches));
 
         if ($matches->count() === 0) {
             return null;

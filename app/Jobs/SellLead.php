@@ -18,6 +18,10 @@ class SellLead implements ShouldQueue, ShouldBeUniqueUntilProcessing
 
     public string $leadId;
 
+    public $tries = 3;
+
+    public $timeout = 30;
+
     public function __construct(string $leadId)
     {
         $this->leadId = $leadId;

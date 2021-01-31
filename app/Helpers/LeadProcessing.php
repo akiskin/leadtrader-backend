@@ -12,6 +12,7 @@ use App\Models\Transaction;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class LeadProcessing
 {
@@ -86,6 +87,7 @@ class LeadProcessing
         $match = LeadMatching::findBestCandidate($lead);
 
         if ($match) {
+            Log::critical('match found');
 
             $prices = self::calculatePriceAndDerivatives($lead, $match);
 
@@ -100,6 +102,7 @@ class LeadProcessing
 
             return;
         }
+        Log::critical('no match??');
 
         //Max time to sell reached?
         $firstTryDate = new Carbon($lead->info['sell_first_try_date']);
@@ -124,7 +127,7 @@ class LeadProcessing
         $buyerCommission = round($price * 0.1, 2); //TODO config per client?
 
         return [
-            'price' => $buyCampaign->max_price,
+            'price' => $price,
             'seller_commission' => $sellerCommission,
             'seller_total' => round($price - $sellerCommission, 2),
             'buyer_commission' => $buyerCommission,
