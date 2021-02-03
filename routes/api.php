@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 
 //Login,logout,etc
 Route::post('/login', [\App\Http\Controllers\LoginController::class, 'authenticate']);
+Route::post('/adm/login', [\App\Http\Controllers\LoginController::class, 'admauthenticate']);
 Route::post('/logout', [\App\Http\Controllers\LoginController::class, 'logout']);
 Route::post('/register', [\App\Http\Controllers\LoginController::class, 'register'])
     ->middleware(['guest']);

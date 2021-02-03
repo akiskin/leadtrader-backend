@@ -26,6 +26,35 @@ class LoginController extends Controller
         ], 401);
     }
 
+    public function admauthenticate(Request $request)
+    {
+        $credentials = $request->only('email', 'password');
+
+        if (Auth::attempt($credentials)) {
+
+            if (! Auth::user()->is_admin()) {
+
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                return response([
+                    'email' => 'The provided credentials do not match our records.',
+                ], 401);
+            }
+
+
+            $request->session()->regenerate();
+
+            \App\Http\Resources\User::withoutWrapping();
+            return \App\Http\Resources\User::make(Auth::user());
+        }
+
+        return response([
+            'email' => 'The provided credentials do not match our records.',
+        ], 401);
+    }
+
     /**
      * Log the user out of the application.
      *
