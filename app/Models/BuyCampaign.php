@@ -35,13 +35,13 @@ class BuyCampaign extends Model
     {
         parent::boot();
 
-        static::creating(function (BuyCampaign $sellCampaign) {
-            $sellCampaign->status_modified_at = Date::now();
+        static::creating(function (BuyCampaign $buyCampaign) {
+            $buyCampaign->status_modified_at = Date::now();
         });
 
-        static::updating(function (SellCampaign $sellCampaign) {
-            if ($sellCampaign->wasChanged('status')) {
-                $sellCampaign->status_modified_at = Date::now();
+        static::updating(function (BuyCampaign $buyCampaign) {
+            if ($buyCampaign->wasChanged('status')) {
+                $buyCampaign->status_modified_at = Date::now();
             }
         });
     }

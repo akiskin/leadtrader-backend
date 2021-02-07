@@ -36,26 +36,18 @@ class BuyCampaignController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\BuyCampaign  $buyCampaign
-     * @return \Illuminate\Http\Response
-     */
-    public function show(BuyCampaign $buyCampaign)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\BuyCampaign  $buyCampaign
-     * @return \Illuminate\Http\Response
+     * @param  \App\Models\BuyCampaign  $buycampaign
      */
-    public function update(Request $request, BuyCampaign $buyCampaign)
+    public function update(Request $request, BuyCampaign $buycampaign)
     {
-        //
+        $buycampaign->fill($request->all());
+        $buycampaign->save();
+
+        \App\Http\Resources\BuyCampaign::withoutWrapping();
+        return \App\Http\Resources\BuyCampaign::make($buycampaign);
     }
 
     /**

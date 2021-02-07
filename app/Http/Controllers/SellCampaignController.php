@@ -39,26 +39,18 @@ class SellCampaignController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\SellCampaign  $sellCampaign
-     * @return \Illuminate\Http\Response
-     */
-    public function show(SellCampaign $sellCampaign)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\SellCampaign  $sellCampaign
-     * @return \Illuminate\Http\Response
+     * @param  \App\Models\SellCampaign  $sellcampaign
      */
-    public function update(Request $request, SellCampaign $sellCampaign)
+    public function update(Request $request, SellCampaign $sellcampaign)
     {
-        //
+        $sellcampaign->fill($request->all());
+        $sellcampaign->save();
+
+        \App\Http\Resources\SellCampaign::withoutWrapping();
+        return \App\Http\Resources\SellCampaign::make($sellcampaign);
     }
 
     /**
