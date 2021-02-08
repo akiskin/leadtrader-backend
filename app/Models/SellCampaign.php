@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Jobs\SellLead;
 use App\Models\Scopes\BelongsToClient;
 use App\Models\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Model;
@@ -40,6 +41,10 @@ class SellCampaign extends Model
                 $sellCampaign->status_modified_at = Date::now();
             }
         });
+
+        static::updated(function (SellCampaign $sellCampaign) {
+            $sellCampaign->dispatchSellJobs();
+        });
     }
 
     protected static function booted()
@@ -76,7 +81,12 @@ class SellCampaign extends Model
 
     public function dispatchSellJobs()
     {
-        //TODO This should be called when campaign is started/unpaused
         //Get all leads in PREPARED -> dispatch Sell job
+        if ($this->currentlySelling()) {
+            $leads = $this->leads()->where('status', '=', Lead::PREPARED)->get();
+            foreach ($leads as $lead) {
+                SellLead::dispatch($lead->getKey());
+            }
+        }
     }
 }
