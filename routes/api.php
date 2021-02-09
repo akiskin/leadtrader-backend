@@ -51,6 +51,8 @@ Route::middleware(['auth:sanctum','admin'])->prefix('adm')->group(function () {
         return \App\Http\Resources\User::make($request->user());
     });
 
+    Route::get('/leads/{lead}/inspect', [\App\Http\Controllers\Admin\LeadController::class, 'inspect']);
+
 });
 
 
