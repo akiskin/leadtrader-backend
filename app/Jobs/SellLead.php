@@ -55,10 +55,10 @@ class SellLead implements ShouldQueue, ShouldBeUniqueUntilProcessing
         }
 
 
-        try {
+        //try {
             LeadProcessing::sell($lead);
-        } catch (\Exception $exception) {
+        //} catch (\Exception $exception) {
             //TODO In some cases we want to ->release() this, in some ->fail() based on Exception
-        }
+        //}
     }
 }

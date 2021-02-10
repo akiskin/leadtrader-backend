@@ -12,7 +12,6 @@ use App\Models\Transaction;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class LeadProcessing
 {
@@ -87,22 +86,14 @@ class LeadProcessing
         $match = LeadMatching::findBestCandidate($lead);
 
         if ($match) {
-            Log::critical('match found');
-
             $prices = self::calculatePriceAndDerivatives($lead, $match);
 
-            try {
-                self::recordPurchase($lead, $match, $prices);
-            } catch (\Exception $exception) {
-                //TODO what to do here????
-                return;
-            }
+            self::recordPurchase($lead, $match, $prices);
 
             //TODO Send notifications (if needed)
 
             return;
         }
-        Log::critical('no match??');
 
         //Max time to sell reached?
         $firstTryDate = new Carbon($lead->info['sell_first_try_date']);
@@ -146,6 +137,7 @@ class LeadProcessing
 
             //Create transaction
             $transaction = new Transaction([
+                'type' => Transaction::TYPE_PURCHASE,
                 'amounts' => $amounts
             ]);
 
@@ -154,7 +146,8 @@ class LeadProcessing
 
             $transaction->save();
 
-            //TODO update stats, balances, etc
+            //Update stats, balances, etc
+            Financials::onTransaction($transaction);
 
         });
     }
