@@ -11,6 +11,9 @@ class Transaction extends Model
         'reference',
         'amounts',
         'type',
+        'lead_id',
+        'buy_campaign_id',
+        'client_id'
     ];
 
     protected $casts = [
@@ -33,5 +36,10 @@ class Transaction extends Model
     public function buyCampaign(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(BuyCampaign::class);
+    }
+
+    public function client(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Client::class);
     }
 }

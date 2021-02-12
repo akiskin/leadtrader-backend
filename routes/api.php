@@ -53,6 +53,8 @@ Route::middleware(['auth:sanctum','admin'])->prefix('adm')->group(function () {
 
     Route::get('/leads/{lead}/inspect', [\App\Http\Controllers\Admin\LeadController::class, 'inspect']);
 
+    Route::apiResource('clients', \App\Http\Controllers\Admin\ClientController::class)->only(['index', 'show', 'update']);
+    Route::apiResource('transactions', \App\Http\Controllers\Admin\TransactionController::class)->only(['store']);
 });
 
 

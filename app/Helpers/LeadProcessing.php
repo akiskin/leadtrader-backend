@@ -11,6 +11,7 @@ use App\Models\Lead;
 use App\Models\Transaction;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class LeadProcessing
@@ -82,6 +83,8 @@ class LeadProcessing
             $lead->info = array_merge($lead->info, ['sell_first_try_date' => now()]);
         }
 
+        $lock = Cache::lock('process_financials'); //Lock before reading client balances
+        $lock->block(3); //If not acquired an Exception will be thrown
 
         $match = LeadMatching::findBestCandidate($lead);
 
@@ -90,10 +93,14 @@ class LeadProcessing
 
             self::recordPurchase($lead, $match, $prices);
 
+            $lock->release();
+
             //TODO Send notifications (if needed)
 
             return;
         }
+
+        $lock->release(); //Don't need it for any further actions
 
         //Max time to sell reached?
         $firstTryDate = new Carbon($lead->info['sell_first_try_date']);

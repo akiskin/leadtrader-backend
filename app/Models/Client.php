@@ -14,4 +14,9 @@ class Client extends Model
         'reg_number',
         'status'
     ];
+
+    public function balance(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(ClientBalanceTotals::class);
+    }
 }
