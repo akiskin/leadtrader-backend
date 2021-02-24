@@ -232,4 +232,5 @@ return [
 
     ],
 
+    'trading_app_url' => env('TRADING_APP_URL', null),
 ];
