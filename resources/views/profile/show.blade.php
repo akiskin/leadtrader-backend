@@ -35,9 +35,11 @@
 
             <x-jet-section-border />
 
-            <div class="mt-10 sm:mt-0">
-                @livewire('profile.delete-user-form')
-            </div>
+            @if (Laravel\Jetstream\Features::enabled(Laravel\Jetstream\Features::accountDeletion()))
+                <div class="mt-10 sm:mt-0">
+                    @livewire('profile.delete-user-form')
+                </div>
+            @endif
         </div>
     </div>
 </x-app-layout>
