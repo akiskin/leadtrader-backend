@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ClientBalanceDetails extends Model
 {
@@ -16,7 +17,12 @@ class ClientBalanceDetails extends Model
     ];
 
     protected $casts = [
-        'period' => 'timestamp',
+        'period' => 'datetime',
         'amount' => 'float'
     ];
+
+    public function transaction(): BelongsTo
+    {
+        return $this->belongsTo(Transaction::class);
+    }
 }

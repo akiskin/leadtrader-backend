@@ -5,6 +5,7 @@ namespace App\Helpers;
 
 
 use App\Models\Transaction;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
@@ -34,6 +35,22 @@ class BalanceHelper
         $lock->release();
 
         return $transaction;
+    }
+
+    static public function startBalanceAt(string $client_id, Carbon $date)
+    {
+        $result = DB::select('SELECT SUM(amount) AS balance FROM client_balance_details WHERE client_id = ? AND period < ? GROUP BY client_id ',
+        [$client_id, $date]);
+
+        return count($result) > 0 ? $result[0]->balance : 0;
+    }
+
+    static public function endBalanceAt(string $client_id, Carbon $date)
+    {
+        $result = DB::select('SELECT SUM(amount) AS balance FROM client_balance_details WHERE client_id = ? AND period <= ? GROUP BY client_id ',
+            [$client_id, $date]);
+
+        return count($result) > 0 ? $result[0]->balance : 0;
     }
 
 }
