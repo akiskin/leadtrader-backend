@@ -2,6 +2,8 @@
 
 namespace App\Helpers;
 
+use App\DecisionPoints\BasicDecisionPoint;
+use App\DecisionPoints\DaysSinceLastTransactionDecisionPoint;
 use App\DecisionPoints\GamblingDecisionPoint;
 use App\Models\BuyCampaign;
 use App\Models\Lead;
@@ -43,7 +45,23 @@ class LeadMatching
     public static function calculateDecisionPoints(Lead $lead): array
     {
         return [
-            'gambling' => new GamblingDecisionPoint($lead)
+            //'gambling' => new GamblingDecisionPoint($lead), //test one
+            'daysSinceLastTransaction' => new DaysSinceLastTransactionDecisionPoint($lead),
+            'DM004' => new BasicDecisionPoint($lead, 'DM004'),
+            'DM005' => new BasicDecisionPoint($lead, 'DM005'),
+            'CF003' => new BasicDecisionPoint($lead, 'CF003'),
+            'DM001' => new BasicDecisionPoint($lead, 'DM001'),
+            'DM003' => new BasicDecisionPoint($lead, 'DM003'),
+            'MN007' => new BasicDecisionPoint($lead, 'MN007'),
+            'CF010' => new BasicDecisionPoint($lead, 'CF010'),
+            'CF005' => new BasicDecisionPoint($lead, 'CF005'),
+            'DM006' => new BasicDecisionPoint($lead, 'DM006'),
+            'CF004' => new BasicDecisionPoint($lead, 'CF004'),
+            'CF008' => new BasicDecisionPoint($lead, 'CF008'),
+            'CF009' => new BasicDecisionPoint($lead, 'CF009'),
+            'CF012' => new BasicDecisionPoint($lead, 'CF012'),
+            'DM012' => new BasicDecisionPoint($lead, 'DM012'),
+            'LT007' => new BasicDecisionPoint($lead, 'LT007'),
         ];
     }
 
