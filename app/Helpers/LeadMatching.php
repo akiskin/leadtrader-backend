@@ -33,10 +33,11 @@ class LeadMatching
     public static function fetchMatchingBuyCampaigns(string $productId, float $maxPrice, string | false $excludeClientById = false): \Illuminate\Database\Eloquent\Collection|array
     {
         //TODO check campaign's (and client's?) budget left
-        return BuyCampaign::query()
+        return BuyCampaign::query()->with('client.balance')
             ->where('status', '=', BuyCampaign::STATUS_ACTIVE)
             ->where('product_id', '=', $productId)
             ->where('max_price', '>=', $maxPrice)
+            ->whereHas('client.balance', fn($q) => $q->where('amount', '>=', $maxPrice))
             ->when($excludeClientById, function ($q) use ($excludeClientById) {
                 $q->where('client_id', '<>', $excludeClientById);
             })->get();
