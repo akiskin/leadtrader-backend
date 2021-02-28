@@ -14,7 +14,9 @@ class BuyCampaignController extends Controller
 {
     public function index()
     {
-        return \App\Http\Resources\BuyCampaign::collection(BuyCampaign::all());
+        //return \App\Http\Resources\BuyCampaign::collection(BuyCampaign::all());
+        return \App\Http\Resources\BuyCampaign::collection(
+            BuyCampaign::withCount(['transactions as transactions_total'])->get());
     }
 
     public function store(Request $request)

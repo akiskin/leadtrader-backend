@@ -29,6 +29,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 //Client webapp
 Route::middleware('auth:sanctum')->group(function () {
+
+    Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'dashboard']);
+    Route::get('/dashboard/tats', [\App\Http\Controllers\DashboardController::class, 'tats']);
+
     Route::apiResource('products', \App\Http\Controllers\ProductController::class)->only('index');
     Route::apiResource('sellcampaigns', \App\Http\Controllers\SellCampaignController::class);
     Route::get('/sellcampaigns/{sellCampaign}/leads', [\App\Http\Controllers\SellCampaignController::class, 'leads']);
