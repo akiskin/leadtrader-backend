@@ -23,7 +23,8 @@ class BuyCampaign extends Model
 
     protected $casts = [
         'buy_rules' => 'array',
-        'max_price' => 'float'
+        'max_price' => 'float',
+        'budget' => 'float',
     ];
 
     const STATUS_NEW = 0;
@@ -71,5 +72,10 @@ class BuyCampaign extends Model
     public function transactionsWithLeads(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->transactions()->with('lead');
+    }
+
+    public function totals(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(BuyCampaignTotals::class);
     }
 }

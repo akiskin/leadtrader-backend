@@ -19,7 +19,7 @@ class BuyCampaign extends JsonResource
         [
             'product' => Product::make($this->product),
             'leads_bought' => $this->when(Arr::exists($this->resource,'transactions_total'), $this->transactions_total),
-            'budget_left' => 0
+            'budget_spent' => $this->whenLoaded('totals', fn() => $this->resource->totals->amount),
         ];
     }
 }

@@ -5,6 +5,7 @@ namespace App\Helpers;
 
 
 use App\Models\Client;
+use App\Models\SellCampaign;
 use App\Models\Transaction;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -89,6 +90,44 @@ class Statistics
                 ) as t',
             [
                 $client->getKey(),
+                Transaction::TYPE_PURCHASE,
+                $after,
+                $before
+            ]);
+
+        return count($result) > 0 ? [
+            'count' => $result[0]->total_count ?? 0,
+            'amount' => $result[0]->total_amount ?? 0,
+            'commission' => $result[0]->total_commission ?? 0
+        ] : [
+            'count' => 0,
+            'amount' => 0,
+            'commission' => 0
+        ];
+    }
+
+
+    public static function soldLeadsForSellCampaign(SellCampaign $sellCampaign, Carbon $after, Carbon $before)
+    {
+        $result = DB::select('SELECT
+                COUNT(*) as total_count,
+                SUM(price) as total_amount,
+                SUM(seller_commission) as total_commission
+            FROM
+                (
+                    SELECT
+                        JSON_EXTRACT(transactions.amounts, "$.price") AS price,
+                        JSON_EXTRACT(transactions.amounts, "$.seller_commission") AS seller_commission
+                    FROM
+                        transactions AS transactions
+                        INNER JOIN leads AS leads ON transactions.lead_id = leads.id
+                    WHERE
+                        leads.sell_campaign_id = ?
+                        AND transactions.type = ?
+                        AND transactions.created_at BETWEEN ? AND ?
+                ) as t',
+            [
+                $sellCampaign->getKey(),
                 Transaction::TYPE_PURCHASE,
                 $after,
                 $before

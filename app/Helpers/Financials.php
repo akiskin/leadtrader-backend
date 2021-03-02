@@ -43,7 +43,7 @@ class Financials
             DB::table('client_balance_details')->where('transaction_id', '=', $transaction_id)->delete();
 
             self::writeDetails($transaction_id, $timestamp, $seller_id, $seller_amount);
-            self::writeDetails($transaction_id, $timestamp, $buyer_id, $buyer_amount);
+            self::writeDetails($transaction_id, $timestamp, $buyer_id, $buyer_amount, $transaction->buyCampaign->getKey());
 
             if ($seller_totals_change !== 0.0) {
                 self::writeTotals($seller_id, $seller_totals_change);
@@ -51,6 +51,7 @@ class Financials
 
             if ($buyer_totals_change !== 0.0) {
                 self::writeTotals($buyer_id, $buyer_totals_change);
+                self::writeBuyCampaignTotals($transaction->buyCampaign->getKey(), -1 * $buyer_totals_change);
             }
 
         } elseif ($transaction->type === Transaction::TYPE_BALANCE_INFLOW || $transaction->type === Transaction::TYPE_BALANCE_OUTFLOW) {
@@ -89,12 +90,16 @@ class Financials
             //Delete details
             //Update totals by -1*details amount
 
-            $old_details = DB::table('client_balance_details')->where('transaction_id', '=', $transaction_id)->select(['client_id', 'amount'])->get();
+            $old_details = DB::table('client_balance_details')->where('transaction_id', '=', $transaction_id)->select(['client_id', 'amount', 'buy_campaign_id'])->get();
 
             DB::table('client_balance_details')->where('transaction_id', '=', $transaction_id)->delete();
 
             $old_details->each(function($detail) {
                 self::writeTotals($detail->client_id, -1 * (float) $detail->amount);
+
+                if ($detail->buy_campaign_id) {
+                    self::writeBuyCampaignTotals($detail->buy_campaign_id, $detail->amount);
+                }
             });
         });
     }
@@ -110,19 +115,24 @@ class Financials
 
             DB::statement('INSERT INTO client_balance_totals (client_id, amount) SELECT client_id, SUM(amount) FROM client_balance_details GROUP BY client_id');
 
+            DB::statement('DELETE FROM buy_campaign_totals');
+
+            DB::statement('INSERT INTO buy_campaign_totals (buy_campaign_id, amount) SELECT buy_campaign_id, SUM(-1 * amount) FROM client_balance_details WHERE buy_campaign_id IS NOT NULL GROUP BY buy_campaign_id');
+
             DB::commit();
         });
     }
 
     //Internal implementation
 
-    static public function writeDetails($transaction_id, $period, $client_id, $amount)
+    static public function writeDetails($transaction_id, $period, $client_id, $amount, $buy_campaign_id = null)
     {
         DB::table('client_balance_details')->insert([
             'transaction_id' => $transaction_id,
             'period' => $period,
             'client_id' => $client_id,
-            'amount' => $amount
+            'amount' => $amount,
+            'buy_campaign_id' => $buy_campaign_id,
         ]);
     }
 
@@ -132,6 +142,17 @@ class Financials
         if ($affected === 0) {
             DB::table('client_balance_totals')->insert([
                 'client_id' => $client_id,
+                'amount' => $amount
+            ]);
+        }
+    }
+
+    static public function writeBuyCampaignTotals($buy_campaign_id, $amount)
+    {
+        $affected = DB::table('buy_campaign_totals')->where('buy_campaign_id', '=', $buy_campaign_id)->increment('amount', $amount);
+        if ($affected === 0) {
+            DB::table('buy_campaign_totals')->insert([
+                'buy_campaign_id' => $buy_campaign_id,
                 'amount' => $amount
             ]);
         }

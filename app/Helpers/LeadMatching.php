@@ -8,6 +8,7 @@ use App\DecisionPoints\GamblingDecisionPoint;
 use App\Models\BuyCampaign;
 use App\Models\Lead;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class LeadMatching
@@ -32,12 +33,14 @@ class LeadMatching
 
     public static function fetchMatchingBuyCampaigns(string $productId, float $maxPrice, string | false $excludeClientById = false): \Illuminate\Database\Eloquent\Collection|array
     {
-        //TODO check campaign's (and client's?) budget left
-        return BuyCampaign::query()->with('client.balance')
+        return BuyCampaign::query()
+            ->with('client.balance')
+            ->with('totals')
             ->where('status', '=', BuyCampaign::STATUS_ACTIVE)
             ->where('product_id', '=', $productId)
             ->where('max_price', '>=', $maxPrice)
             ->whereHas('client.balance', fn($q) => $q->where('amount', '>=', $maxPrice))
+            ->whereHas('totals', fn($q) => $q->where(DB::raw('buy_campaigns.budget - buy_campaign_totals.amount'), '>=', $maxPrice))
             ->when($excludeClientById, function ($q) use ($excludeClientById) {
                 $q->where('client_id', '<>', $excludeClientById);
             })->get();

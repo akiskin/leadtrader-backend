@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Statistics;
 use App\Http\Resources\LeadForSeller;
 use App\Models\Lead;
 use App\Models\SellCampaign;
@@ -62,6 +63,22 @@ class SellCampaignController extends Controller
     public function destroy(SellCampaign $sellCampaign)
     {
         //
+    }
+
+    public function details(Request $request, SellCampaign $sellCampaign)
+    {
+        $base = \App\Http\Resources\SellCampaign::make($sellCampaign)->toArray($request);
+
+
+        $start = $sellCampaign->created_at;
+        $end = now()->endOfDay();
+
+        return response()->json([
+            'general' => $base,
+            'stats' => [
+                'sold' => Statistics::soldLeadsForSellCampaign($sellCampaign, $start, $end)
+            ],
+        ]);
     }
 
     public function leads(SellCampaign $sellCampaign)
