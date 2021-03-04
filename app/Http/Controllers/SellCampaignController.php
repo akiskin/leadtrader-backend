@@ -77,7 +77,7 @@ class SellCampaignController extends Controller
             'general' => $base,
             'stats' => [
                 'sold' => Statistics::soldLeadsForSellCampaign($sellCampaign, $start, $end)
-            ],
+            ] + Statistics::sellCampaignStatistics($sellCampaign, $start, $end),
         ]);
     }
 

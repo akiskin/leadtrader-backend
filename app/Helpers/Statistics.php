@@ -5,6 +5,7 @@ namespace App\Helpers;
 
 
 use App\Models\Client;
+use App\Models\Lead;
 use App\Models\SellCampaign;
 use App\Models\Transaction;
 use Illuminate\Support\Carbon;
@@ -141,6 +142,50 @@ class Statistics
             'count' => 0,
             'amount' => 0,
             'commission' => 0
+        ];
+    }
+
+    public static function sellCampaignStatistics(SellCampaign $sellCampaign, Carbon $after, Carbon $before)
+    {
+        $result = DB::select('SELECT
+                status,
+                COUNT(*) as total
+            FROM
+                leads as leads
+            WHERE
+                leads.sell_campaign_id = ?
+                AND leads.created_at BETWEEN ? AND ?
+            GROUP BY
+                leads.status',
+            [
+                $sellCampaign->getKey(),
+                $after,
+                $before
+            ]);
+
+        $stats = collect($result)->keyBy('status');
+
+        $uploaded = $stats->reduce(function ($carry, $item) {
+            return $carry + $item->total;
+        }, 0);
+
+        $rejected = $stats->filter(fn($el) => $el->status > Lead::PREPARED && $el->status < Lead::SOLD)->reduce(function ($carry, $item) {
+            return $carry + $item->total;
+        }, 0);
+
+        $selling = $stats->filter(fn($el) => $el->status == Lead::SELLING_NO_CURRENT_MATCH)->reduce(function ($carry, $item) {
+            return $carry + $item->total;
+        }, 0);
+
+        $retired = $stats->filter(fn($el) => $el->status == Lead::NOT_SOLD_NO_MATCH)->reduce(function ($carry, $item) {
+            return $carry + $item->total;
+        }, 0);
+
+        return [
+            'uploaded' => $uploaded,
+            'rejected' => $rejected,
+            'selling' => $selling,
+            'retired' => $retired,
         ];
     }
 }
