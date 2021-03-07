@@ -23,7 +23,9 @@ class ClientController extends BaseController
 
     public function update(Request $request, Client $client)
     {
-        //TODO ?
+        $client->fill($request->all());
+        $client->save();
+
         return \App\Http\Resources\Admin\Client::make($client);
     }
 
@@ -31,7 +33,8 @@ class ClientController extends BaseController
     public function dashboard(Client $client)
     {
         return [
-            'currentBalance' => $client->balance->amount
+            'currentBalance' => $client->balance->amount,
+            'brokerflow_key' => $client->brokerflow_key,
         ];
     }
 

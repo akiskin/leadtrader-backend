@@ -14,7 +14,8 @@ class Client extends Model
     protected $fillable = [
         'name',
         'reg_number',
-        'status'
+        'status',
+        'brokerflow_key'
     ];
 
     public function balance(): \Illuminate\Database\Eloquent\Relations\HasOne

@@ -62,7 +62,7 @@ Route::middleware(['auth:sanctum','admin'])->prefix('adm')->group(function () {
 
     Route::get('/leads/{lead}/inspect', [\App\Http\Controllers\Admin\LeadController::class, 'inspect']);
 
-    Route::apiResource('clients', \App\Http\Controllers\Admin\ClientController::class)->only(['index', 'show', 'update']);
+    Route::apiResource('clients', \App\Http\Controllers\Admin\ClientController::class)->only(['index', 'update']);
     Route::get('/clients/{client}/dashboard', [\App\Http\Controllers\Admin\ClientController::class, 'dashboard']);
     Route::get('/clients/{client}/tats', [\App\Http\Controllers\Admin\ClientController::class, 'tats']);
 

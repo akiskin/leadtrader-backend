@@ -19,6 +19,7 @@ class Client extends JsonResource
             'name' => $this->resource->name,
             'reg_number' => $this->resource->reg_number,
             'status' => $this->resource->status,
+            'brokerflow_key' => $this->resource->brokerflow_key,
             'balance' => $this->whenLoaded('balance', fn() => $this->resource->balance->amount)
         ];
     }
