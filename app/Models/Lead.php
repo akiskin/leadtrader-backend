@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Date;
 
 class Lead extends Model
@@ -64,5 +65,15 @@ class Lead extends Model
     public function getTransactionAttribute()
     {
         return $this->transactions()->first();
+    }
+
+    public function documentId()
+    {
+        return Arr::exists($this->info, 'document_id') ? $this->info['document_id'] : '';
+    }
+
+    public function activityLogs(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(LeadActivityLog::class);
     }
 }

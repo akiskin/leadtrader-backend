@@ -38,6 +38,15 @@ class Transaction extends Model
         return $this->belongsTo(BuyCampaign::class);
     }
 
+    public function buyCampaignForce()
+    {
+        return $this->buyCampaign()->withoutGlobalScopes()->first();
+    }
+
+    public function getBuyCampaignForceAttribute() {
+        return $this->buyCampaignForce();
+    }
+
     public function client(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Client::class);

@@ -5,9 +5,11 @@ namespace App\Helpers;
 
 
 use App\Integration\ODS;
+use App\Jobs\DeliverLeadData;
 use App\Jobs\SellLead;
 use App\Models\BuyCampaign;
 use App\Models\Lead;
+use App\Models\LeadActivityLog;
 use App\Models\Transaction;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
@@ -27,38 +29,45 @@ class LeadProcessing
         $documentId = $lead->info['document_id'];
 
         try {
-            $rawData = ODS::retrieveSubmissionData($documentId);
+            $reprocessedRawData = ODS::retrieveSubmissionData($documentId);
+
+            LeadActivityLog::persist($lead->getKey(), LeadActivityLog::RAW_DATA_RETRIEVAL, [
+                'status' => 200,
+                'documentId' => $documentId,
+            ]);
+
         } catch (\Exception $exception) {
-            //TODO make different exceptions, as some might be recoverable, some - not
-            //TODO logging
+
+            LeadActivityLog::persist($lead->getKey(), LeadActivityLog::RAW_DATA_RETRIEVAL, [
+                'status' => $exception->getCode(),
+                'body' => $exception->getMessage(),
+                'documentId' => $documentId,
+            ]);
+
             $lead->status = Lead::PREPARED_ERROR_NORAWDATA;
             $lead->save();
             return;
         }
 
+        /*
         try {
             $reprocessedRawData = ODS::reprocessRawData(json_encode($rawData));
         } catch (\Exception $exception) {
-            //TODO make different exceptions, as some might be recoverable, some - not
-            //TODO logging
             $lead->status = Lead::PREPARED_ERROR_REPROCESSING;
             $lead->save();
             return;
         }
+        */
 
 
         try {
             $decisioningData = ODS::extractDecisioningData($reprocessedRawData);
 
-
             //Save rawData files inside existing ZIP file
             $zip = new \ZipArchive();
             $zip->open($lead->data_path);
-            $zip->addFromString('ods_original.json', json_encode($rawData));
+            $zip->addFromString('ods_original.json', json_encode($reprocessedRawData));
             $zip->setEncryptionName('ods_original.json', \ZipArchive::EM_AES_256, $lead->data_secret);
-
-            $zip->addFromString('ods_reprocessed.json', json_encode($reprocessedRawData));
-            $zip->setEncryptionName('ods_reprocessed.json', \ZipArchive::EM_AES_256, $lead->data_secret);
             $zip->close();
 
 
@@ -67,8 +76,6 @@ class LeadProcessing
             $lead->status = Lead::PREPARED;
             $lead->save();
         } catch (\Exception $exception) {
-            //TODO make different exceptions, as some might be recoverable, some - not
-            //TODO logging
             $lead->status = Lead::PREPARED_ERROR_POSTPROCESSING;
             $lead->save();
             return;
@@ -95,7 +102,15 @@ class LeadProcessing
 
             $lock->release();
 
-            //TODO Send notifications (if needed)
+            //Everything else after lock is released
+
+            LeadActivityLog::persist($lead->getKey(), LeadActivityLog::SELL, [
+                'status' => Lead::SOLD,
+                'buyCampaign' => $match->getKey(),
+                'rules' => $match->buy_rules
+            ]);
+
+            DeliverLeadData::dispatch($lead->getKey());
 
             return;
         }
@@ -109,12 +124,22 @@ class LeadProcessing
         if (!$retryIfUnmatched || $maxSellPeriodReached) {
             $lead->status = Lead::NOT_SOLD_NO_MATCH;
             $lead->save();
+
+            LeadActivityLog::persist($lead->getKey(), LeadActivityLog::SELL, [
+                'status' => Lead::NOT_SOLD_NO_MATCH,
+            ]);
+
             return;
         }
 
         //Plan another iteration an hour later
         $lead->status = Lead::SELLING_NO_CURRENT_MATCH;
         $lead->save();
+
+        LeadActivityLog::persist($lead->getKey(), LeadActivityLog::SELL, [
+            'status' => Lead::SELLING_NO_CURRENT_MATCH,
+        ]);
+
         SellLead::dispatch($lead->getKey())->delay(now()->addMinutes(60));
     }
 
@@ -212,4 +237,39 @@ class LeadProcessing
 
         return $returnData;
     }
+
+    public static function deliver(Lead $lead)
+    {
+        //$buyer = $lead->transaction->buyCampaign->client;
+        $buyer = $lead->transaction->buyCampaignForce->client;
+
+        if (!$buyer || !$buyer->brokerflow_key ) {
+            //TODO: write delivery/activity log
+            return;
+        }
+
+        $documentId = $lead->documentId();
+        $referralCode = "ldmrkt:1:" . $lead->getKey();
+
+        try {
+            ODS::sendDataViaBankStatements($documentId, $referralCode, $buyer->brokerflow_key);
+
+            LeadActivityLog::persist($lead->getKey(), LeadActivityLog::DELIVERY, [
+                'status' => 200,
+                'key' => $buyer->brokerflow_key
+            ]);
+
+        } catch (\Exception $exception) {
+
+            LeadActivityLog::persist($lead->getKey(), LeadActivityLog::DELIVERY, [
+                'status' => $exception->getCode(),
+                'body' => $exception->getMessage(),
+                'key' => $buyer->brokerflow_key,
+            ]);
+
+            throw $exception; //for the job
+        }
+
+    }
+
 }

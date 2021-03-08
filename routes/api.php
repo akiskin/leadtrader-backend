@@ -61,6 +61,7 @@ Route::middleware(['auth:sanctum','admin'])->prefix('adm')->group(function () {
     Route::get('/tools/release-lock', [\App\Http\Controllers\Admin\ToolsController::class, 'releaseLock']);
 
     Route::get('/leads/{lead}/inspect', [\App\Http\Controllers\Admin\LeadController::class, 'inspect']);
+    Route::get('/leads/{lead}/resend', [\App\Http\Controllers\Admin\LeadController::class, 'resend']);
 
     Route::apiResource('clients', \App\Http\Controllers\Admin\ClientController::class)->only(['index', 'update']);
     Route::get('/clients/{client}/dashboard', [\App\Http\Controllers\Admin\ClientController::class, 'dashboard']);

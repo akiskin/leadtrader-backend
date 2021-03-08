@@ -20,7 +20,7 @@ class ODS
         ])->get($url);
 
         if (!$response->successful()) {
-            throw new \Exception($response->body());
+            throw new \Exception($response->body(), $response->status());
         }
 
         return $response->json();
@@ -164,5 +164,20 @@ class ODS
         }
 
         return $returnData;
+    }
+
+    public static function sendDataViaBankStatements(string $documentId, string $referralCode, string $brokerflowKey)
+    {
+        $url = config('integration.ODS.bf_api_url') . "/get-submission/{$documentId}/{$referralCode}";
+
+        $response = Http::timeout(30)->withHeaders([
+            'X-API-KEY' => $brokerflowKey,
+            'Content-Type' => 'application/json',
+            'Accept' => 'application/json'
+        ])->get($url);
+
+        if (!$response->successful()) {
+            throw new \Exception($response->body(), $response->status());
+        }
     }
 }
