@@ -4,6 +4,7 @@
 namespace App\Helpers;
 
 
+use App\Models\BuyCampaign;
 use App\Models\Client;
 use App\Models\Lead;
 use App\Models\SellCampaign;
@@ -186,6 +187,42 @@ class Statistics
             'rejected' => $rejected,
             'selling' => $selling,
             'retired' => $retired,
+        ];
+    }
+
+    public static function boughtLeadsForBuyCampaign(BuyCampaign $buyCampaign, Carbon $after, Carbon $before)
+    {
+        $result = DB::select('SELECT
+                COUNT(*) as total_count,
+                SUM(price) as total_amount,
+                SUM(buyer_commission) as total_commission
+            FROM
+                (
+                    SELECT
+                        JSON_EXTRACT(transactions.amounts, "$.price") AS price,
+                        JSON_EXTRACT(transactions.amounts, "$.buyer_commission") AS buyer_commission
+                    FROM
+                        transactions AS transactions
+                    WHERE
+                        transactions.buy_campaign_id = ?
+                        AND transactions.type = ?
+                        AND transactions.created_at BETWEEN ? AND ?
+                ) as t',
+            [
+                $buyCampaign->getKey(),
+                Transaction::TYPE_PURCHASE,
+                $after,
+                $before
+            ]);
+
+        return count($result) > 0 ? [
+            'count' => $result[0]->total_count ?? 0,
+            'amount' => $result[0]->total_amount ?? 0,
+            'commission' => $result[0]->total_commission ?? 0
+        ] : [
+            'count' => 0,
+            'amount' => 0,
+            'commission' => 0
         ];
     }
 }

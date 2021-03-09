@@ -40,6 +40,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/sellcampaigns/{sellCampaign}/leads', [\App\Http\Controllers\SellCampaignController::class, 'leads']);
 
     Route::apiResource('buycampaigns', \App\Http\Controllers\BuyCampaignController::class);
+    Route::get('/buycampaigns/{buyCampaign}/details', [\App\Http\Controllers\BuyCampaignController::class, 'details']);
     Route::get('/buycampaigns/{buyCampaign}/leads', [\App\Http\Controllers\BuyCampaignController::class, 'leads']);
     Route::get('/buycampaigns/{buyCampaign}/leads/export', [\App\Http\Controllers\BuyCampaignController::class, 'leadsForExport']);
 

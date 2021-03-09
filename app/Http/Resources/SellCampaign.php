@@ -17,7 +17,7 @@ class SellCampaign extends JsonResource
     {
         return parent::toArray($request) +
         [
-            'product' => Product::make($this->product),
+            'product' => $this->whenLoaded('product', fn() => Product::make($this->product)),
             'leads_total' => $this->when(Arr::exists($this->resource,'leads_total'), $this->leads_total),
             'leads_sold' => $this->when(Arr::exists($this->resource,'leads_sold'), $this->leads_sold),
             'leads_rejected' => 0,

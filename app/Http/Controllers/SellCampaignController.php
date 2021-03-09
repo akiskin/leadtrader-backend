@@ -16,7 +16,7 @@ class SellCampaignController extends Controller
     {
         //return \App\Http\Resources\SellCampaign::collection(SellCampaign::all());
         return \App\Http\Resources\SellCampaign::collection(
-            SellCampaign::withCount(['leads as leads_total', 'leads as leads_sold' => function (Builder $query) {
+            SellCampaign::query()->with(['product'])->withCount(['leads as leads_total', 'leads as leads_sold' => function (Builder $query) {
                 $query->where('status', '=', Lead::SOLD);
         }])->get());
     }
@@ -67,7 +67,7 @@ class SellCampaignController extends Controller
 
     public function details(Request $request, SellCampaign $sellCampaign)
     {
-        $base = \App\Http\Resources\SellCampaign::make($sellCampaign)->toArray($request);
+        $base = \App\Http\Resources\SellCampaign::make($sellCampaign->load(['product']))->toArray($request);
 
 
         $start = $sellCampaign->created_at;

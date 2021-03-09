@@ -17,7 +17,7 @@ class BuyCampaign extends JsonResource
     {
         return parent::toArray($request) +
         [
-            'product' => Product::make($this->product),
+            'product' => $this->whenLoaded('product', fn() => Product::make($this->product)),
             'leads_bought' => $this->when(Arr::exists($this->resource,'transactions_total'), $this->transactions_total),
             'budget_spent' => $this->whenLoaded('totals', fn() => $this->resource->totals->amount),
         ];

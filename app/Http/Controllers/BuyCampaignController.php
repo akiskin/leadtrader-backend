@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\LeadProcessing;
+use App\Helpers\Statistics;
 use App\Http\Resources\TransactionForBuyer;
 use App\Models\BuyCampaign;
 use Illuminate\Database\Eloquent\Builder;
@@ -16,9 +17,30 @@ class BuyCampaignController extends Controller
     {
         //return \App\Http\Resources\BuyCampaign::collection(BuyCampaign::all());
         return \App\Http\Resources\BuyCampaign::collection(
-            BuyCampaign::withCount(['transactions as transactions_total'])
-                ->with('totals')
+            BuyCampaign::query()->withCount(['transactions as transactions_total'])
+                ->with(['totals', 'product'])
                 ->get());
+    }
+
+    public function details(Request $request, BuyCampaign $buyCampaign)
+    {
+        $base = \App\Http\Resources\BuyCampaign::make($buyCampaign->load(['product']))->toArray($request);
+
+        $start = $buyCampaign->created_at;
+        $end = now()->endOfDay();
+        $bought = Statistics::boughtLeadsForBuyCampaign($buyCampaign, $start, $end);
+
+        return response()->json([
+            'general' => $base,
+            'stats' => [
+                'bought' => $bought,
+                'budget' => [
+                    'total' => $buyCampaign->budget,
+                    'used' => $bought['amount'] + $bought['commission'],
+                    'left' => $buyCampaign->budget - $bought['amount'] - $bought['commission'],
+                ],
+            ],
+        ]);
     }
 
     public function store(Request $request)
