@@ -13,6 +13,7 @@ class ClientBalanceDetails extends Model
         'transaction_id',
         'period',
         'client_id',
+        'buy_campaign_id',
         'amount'
     ];
 

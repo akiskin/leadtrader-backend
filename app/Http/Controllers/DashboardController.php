@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\Statistics;
+use App\Http\Resources\ClientBalanceDetails;
+use App\Models\Client;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -26,6 +28,8 @@ class DashboardController extends BaseController
             abort(403);
         }
 
+
+        /** @var Client $client */
         $client = $user->client;
 
 
@@ -40,9 +44,10 @@ class DashboardController extends BaseController
             ->where('period', '<=', $before)
             ->get();
 
+        ClientBalanceDetails::withoutWrapping();
         return [
             'startBalance' => (float) $client->startBalanceAt($after),
-            'transactions' => $moves,
+            'transactions' => ClientBalanceDetails::collection($moves),
             'endBalance' => (float) $client->endBalanceAt($before)
         ];
     }
