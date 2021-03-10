@@ -70,6 +70,8 @@ Route::middleware(['auth:sanctum','admin'])->prefix('adm')->group(function () {
 
 
     Route::apiResource('transactions', \App\Http\Controllers\Admin\TransactionController::class)->only(['store']);
+
+    Route::apiResource('products', \App\Http\Controllers\ProductController::class);
 });
 
 
