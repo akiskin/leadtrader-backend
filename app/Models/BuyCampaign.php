@@ -18,7 +18,8 @@ class BuyCampaign extends Model
         'max_price',
         'start',
         'finish',
-        'buy_rules'
+        'buy_rules',
+        'product_id'
     ];
 
     protected $casts = [
