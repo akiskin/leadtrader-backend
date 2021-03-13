@@ -40,6 +40,12 @@ class LeadMatching
             ->where('status', '=', BuyCampaign::STATUS_ACTIVE)
             ->where('product_id', '=', $productId)
             ->where('max_price', '>=', $maxPrice)
+            ->where(function($q) {
+                $q->whereDate('start', '<=', now())->orWhereNull('start');
+            })
+            ->where(function($q) {
+                $q->whereDate('finish', '>=', now())->orWhereNull('finish');
+            })
             ->whereHas('client.balance', fn($q) => $q->where('amount', '>=', $maxPrice))
             ->whereHas('totals', fn($q) => $q->where(DB::raw('buy_campaigns.budget - buy_campaign_totals.amount'), '>=', $maxPrice))
             ->when($excludeClientById, function ($q) use ($excludeClientById) {
