@@ -4,6 +4,7 @@ namespace App\Helpers;
 
 use App\DecisionPoints\BasicDecisionPoint;
 use App\DecisionPoints\DaysSinceLastTransactionDecisionPoint;
+use App\DecisionPoints\DaysSinceLeadUploadDecisionPoint;
 use App\DecisionPoints\GamblingDecisionPoint;
 use App\Models\BuyCampaign;
 use App\Models\Lead;
@@ -51,6 +52,7 @@ class LeadMatching
         return [
             //'gambling' => new GamblingDecisionPoint($lead), //test one
             'daysSinceLastTransaction' => new DaysSinceLastTransactionDecisionPoint($lead),
+            'daysSinceLeadUpload' => new DaysSinceLeadUploadDecisionPoint($lead),
             'DM004' => new BasicDecisionPoint($lead, 'DM004'),
             'DM005' => new BasicDecisionPoint($lead, 'DM005'),
             'CF003' => new BasicDecisionPoint($lead, 'CF003'),
