@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 
 class ODS
 {
-    public static function retrieveSubmissionData(string $documentId): array
+    public static function retrieveSubmissionData(string $documentId): array | null
     {
         $url = config('integration.ODS.bf_api_url') . "/get-submission/{$documentId}/ARGH?returnDocument=true";
 

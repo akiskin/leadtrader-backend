@@ -5,7 +5,6 @@ namespace App\Helpers;
 use App\DecisionPoints\BasicDecisionPoint;
 use App\DecisionPoints\DaysSinceLastTransactionDecisionPoint;
 use App\DecisionPoints\DaysSinceLeadUploadDecisionPoint;
-use App\DecisionPoints\GamblingDecisionPoint;
 use App\Models\BuyCampaign;
 use App\Models\Lead;
 use Illuminate\Support\Arr;
@@ -47,7 +46,10 @@ class LeadMatching
                 $q->whereDate('finish', '>=', now())->orWhereNull('finish');
             })
             ->whereHas('client.balance', fn($q) => $q->where('amount', '>=', $maxPrice))
-            ->whereHas('totals', fn($q) => $q->where(DB::raw('buy_campaigns.budget - buy_campaign_totals.amount'), '>=', $maxPrice))
+            ->where(function($q) use($maxPrice) {
+                $q->whereHas('totals', fn($q) => $q->where(DB::raw('buy_campaigns.budget - buy_campaign_totals.amount'), '>=', $maxPrice))->orWhereDoesntHave('totals');
+
+            })
             ->when($excludeClientById, function ($q) use ($excludeClientById) {
                 $q->where('client_id', '<>', $excludeClientById);
             })->get();

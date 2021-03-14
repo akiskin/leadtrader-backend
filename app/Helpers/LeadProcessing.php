@@ -31,6 +31,10 @@ class LeadProcessing
         try {
             $reprocessedRawData = ODS::retrieveSubmissionData($documentId);
 
+            if ($reprocessedRawData === null) {
+                throw new \Exception('ODS did not return JSON');
+            }
+
             LeadActivityLog::persist($lead->getKey(), LeadActivityLog::RAW_DATA_RETRIEVAL, [
                 'status' => 200,
                 'documentId' => $documentId,
