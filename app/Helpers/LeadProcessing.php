@@ -94,7 +94,7 @@ class LeadProcessing
             $lead->info = array_merge($lead->info, ['sell_first_try_date' => now()]);
         }
 
-        $lock = Cache::lock('process_financials'); //Lock before reading client balances
+        $lock = Cache::lock('process_financials', 15); //Lock before reading client balances
         $lock->block(3); //If not acquired an Exception will be thrown
 
         $match = LeadMatching::findBestCandidate($lead);

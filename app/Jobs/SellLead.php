@@ -45,7 +45,7 @@ class SellLead implements ShouldQueue, ShouldBeUniqueUntilProcessing
 
     public function middleware(): array
     {
-        return [(new WithoutOverlapping())];
+        return [(new WithoutOverlapping())->releaseAfter(10)->expireAfter(30)];
     }
 
     public function handle()
