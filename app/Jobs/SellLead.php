@@ -23,10 +23,7 @@ class SellLead implements ShouldQueue, ShouldBeUniqueUntilProcessing
 
     public int $timeout = 30;
 
-    public function backoff()
-    {
-        return [3, 9, 27];
-    }
+    public $backoff = [31, 91, 181];
 
     public function __construct(string $leadId)
     {
