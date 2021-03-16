@@ -60,6 +60,7 @@ Route::middleware(['auth:sanctum','admin'])->prefix('adm')->group(function () {
 
     //Tools
     Route::get('/tools/release-lock', [\App\Http\Controllers\Admin\ToolsController::class, 'releaseLock']);
+    Route::get('/tools/active-buy-campaigns', [\App\Http\Controllers\Admin\ToolsController::class, 'activeBuyCampaigns']);
 
     Route::get('/leads/{lead}/inspect', [\App\Http\Controllers\Admin\LeadController::class, 'inspect']);
     Route::get('/leads/{lead}/resend', [\App\Http\Controllers\Admin\LeadController::class, 'resend']);
