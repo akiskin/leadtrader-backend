@@ -33,7 +33,7 @@ class ClientController extends BaseController
     public function dashboard(Client $client)
     {
         return [
-            'currentBalance' => $client->balance->amount,
+            'currentBalance' => $client->balance ? $client->balance->amount : 0,
             'brokerflow_key' => $client->brokerflow_key,
         ];
     }
