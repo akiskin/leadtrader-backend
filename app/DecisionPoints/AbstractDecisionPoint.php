@@ -70,4 +70,13 @@ abstract class AbstractDecisionPoint
             return null;
         }
     }
+
+    protected function infoValueByName(string $infoName)
+    {
+        if (!Arr::has($this->lead->info, $infoName)) {
+            return $this->lead->info[$infoName];
+        } else {
+            return null;
+        }
+    }
 }

@@ -5,6 +5,9 @@ namespace App\Helpers;
 use App\DecisionPoints\BasicDecisionPoint;
 use App\DecisionPoints\DaysSinceLastTransactionDecisionPoint;
 use App\DecisionPoints\DaysSinceLeadUploadDecisionPoint;
+use App\DecisionPoints\GenderDecisionPoint;
+use App\DecisionPoints\PostcodeDecisionPoint;
+use App\DecisionPoints\RequestedAmountDecisionPoint;
 use App\Models\BuyCampaign;
 use App\Models\Lead;
 use Illuminate\Support\Arr;
@@ -61,6 +64,9 @@ class LeadMatching
             //'gambling' => new GamblingDecisionPoint($lead), //test one
             'daysSinceLastTransaction' => new DaysSinceLastTransactionDecisionPoint($lead),
             'daysSinceLeadUpload' => new DaysSinceLeadUploadDecisionPoint($lead),
+            'gender' => new GenderDecisionPoint($lead),
+            'postcode' => new PostcodeDecisionPoint($lead),
+            'requestedAmount' => new RequestedAmountDecisionPoint($lead),
             'DM004' => new BasicDecisionPoint($lead, 'DM004'),
             'DM005' => new BasicDecisionPoint($lead, 'DM005'),
             'CF003' => new BasicDecisionPoint($lead, 'CF003'),
