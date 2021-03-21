@@ -52,15 +52,17 @@ class LeadController extends Controller
             $private = [];
 
             $acceptedKeys = [
-                "document_id" => [ "required" => true, "private" => false ],
-                "loan_purpose" => [ "required" => true, "private" => false ],
-                "loan_amount" => [ "required" => true, "private" => false ],
+                "document_id" => [ "required" => true ],
+                "loan_purpose" => [ "required" => true ],
+                "loan_amount" => [ "required" => true ],
 
-                "first_name" => [ "required" => true, "private" => true ],
-                "last_name" => [ "required" => true, "private" => true ],
-                "address" => [ "required" => true, "private" => true ],
-                "phone" => [ "required" => true, "private" => true ],
-                "email" => [ "required" => true, "private" => true ],
+                "first_name" => [ "required" => true ],
+                "last_name" => [ "required" => true ],
+                "gender" => [ "required" => true ],
+                "postcode" => [ "required" => true ],
+                "address" => [ "required" => true ],
+                "phone" => [ "required" => true ],
+                "email" => [ "required" => true ],
             ];
 
             foreach ($acceptedKeys as $key => $options) {
@@ -70,15 +72,11 @@ class LeadController extends Controller
 
                 $value = Arr::get($leadData, $key);
 
-                if ($options['private']) {
-                    $private[$key] = $value;
-                } else {
-                    $info[$key] = $value;
-                }
+                $info[$key] = $value;
             }
 
 
-            RegisterNewLead::dispatch($sellCampaignId, $info, $private);
+            RegisterNewLead::dispatch($sellCampaignId, $info);
             //TODO error handling
 
 

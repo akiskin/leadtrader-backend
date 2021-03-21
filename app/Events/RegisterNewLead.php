@@ -13,20 +13,16 @@ class RegisterNewLead
 
     public array $generalInfo;
 
-    public array $privateInfo;
-
     /**
      * Create a new event instance.
      *
      * @param string $sellCampaignId
      * @param array $generalInfo
-     * @param array $privateInfo
      */
-    public function __construct(string $sellCampaignId, array $generalInfo, array $privateInfo)
+    public function __construct(string $sellCampaignId, array $generalInfo)
     {
         $this->sellCampaignId = $sellCampaignId;
         $this->generalInfo = $generalInfo;
-        $this->privateInfo = $privateInfo;
     }
 
 }

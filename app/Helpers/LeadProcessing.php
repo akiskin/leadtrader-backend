@@ -67,13 +67,16 @@ class LeadProcessing
         try {
             $decisioningData = ODS::extractDecisioningData($reprocessedRawData);
 
+            /*
+             * Simplify - don't store raw data on our side as delivery is going through BF+BS
+
             //Save rawData files inside existing ZIP file
             $zip = new \ZipArchive();
             $zip->open($lead->data_path);
             $zip->addFromString('ods_original.json', json_encode($reprocessedRawData));
             $zip->setEncryptionName('ods_original.json', \ZipArchive::EM_AES_256, $lead->data_secret);
             $zip->close();
-
+            */
 
             $lead->metrics = $decisioningData;
 
@@ -194,20 +197,27 @@ class LeadProcessing
             'id' => $lead->id,
         ];
 
-        if (Arr::exists($lead->info, 'document_id')) {
-            $returnData['document_id'] = $lead->info['document_id'];
+        $requiredFields = [
+            "document_id",
+            "loan_purpose",
+            "loan_amount",
+            "first_name",
+            "last_name",
+            "gender",
+            "postcode",
+            "address",
+            "phone",
+            "email",
+        ];
+
+        foreach ($requiredFields as $fieldName) {
+            if (Arr::exists($lead->info, $fieldName)) {
+                $returnData[$fieldName] = $lead->info[$fieldName];
+            }
         }
 
-        if (Arr::exists($lead->info, 'loan_purpose')) {
-            $returnData['loan_purpose'] = $lead->info['loan_purpose'];
-        }
-
-        if (Arr::exists($lead->info, 'loan_amount')) {
-            $returnData['loan_amount'] = $lead->info['loan_amount'];
-        }
-
-
-
+        /*
+         * Simplify - don't use local files
         if ($lead->data_path && is_string($lead->data_path)) {
 
             //Save rawData files inside existing ZIP file
@@ -235,9 +245,7 @@ class LeadProcessing
             }
 
         }
-
-
-
+        */
 
         return $returnData;
     }

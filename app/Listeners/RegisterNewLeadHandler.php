@@ -32,6 +32,9 @@ class RegisterNewLeadHandler
 
         $lead->save();
 
+        /*
+         * Simplify the system - get rid of encrypted files, store less data
+
         $fileName = storage_path('app/leads') . '/' . $lead->getKey() . '.zip';
 
         //Generate ZIP file with private info
@@ -43,6 +46,7 @@ class RegisterNewLeadHandler
 
         $lead->data_path = $fileName;
         $lead->save();
+        */
 
 
         PrepareLead::dispatch($lead->getKey());
