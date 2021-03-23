@@ -14,12 +14,14 @@ class ClientBalanceDetails extends Model
         'period',
         'client_id',
         'buy_campaign_id',
-        'amount'
+        'amount',
+        'commission',
     ];
 
     protected $casts = [
         'period' => 'datetime',
-        'amount' => 'float'
+        'amount' => 'float',
+        'commission' => 'float',
     ];
 
     public function transaction(): BelongsTo

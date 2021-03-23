@@ -26,10 +26,11 @@ class Financials
             //Get target amounts - trans type specific
             $seller_id = $transaction->lead->sellCampaign->client->getKey();
             $seller_amount = $transaction->amounts['seller_total'];
+            $seller_commission = $transaction->amounts['seller_commission'];
 
             $buyer_id = $transaction->buyCampaign->client->getKey();
             $buyer_amount = -1 * $transaction->amounts['buyer_total'];
-
+            $buyer_commission = $transaction->amounts['buyer_commission'];
 
             //Find out previous details and their amounts
             $old_details = DB::table('client_balance_details')->where('transaction_id', '=', $transaction_id)->select(['client_id', 'amount'])->get();
@@ -42,8 +43,8 @@ class Financials
             //Write new data generation
             DB::table('client_balance_details')->where('transaction_id', '=', $transaction_id)->delete();
 
-            self::writeDetails($transaction_id, $timestamp, $seller_id, $seller_amount);
-            self::writeDetails($transaction_id, $timestamp, $buyer_id, $buyer_amount, $transaction->buyCampaign->getKey());
+            self::writeDetails($transaction_id, $timestamp, $seller_id, $seller_amount, $seller_commission);
+            self::writeDetails($transaction_id, $timestamp, $buyer_id, $buyer_amount, $buyer_commission, $transaction->buyCampaign->getKey());
 
             if ($seller_totals_change !== 0.0) {
                 self::writeTotals($seller_id, $seller_totals_change);
@@ -125,13 +126,14 @@ class Financials
 
     //Internal implementation
 
-    static public function writeDetails($transaction_id, $period, $client_id, $amount, $buy_campaign_id = null)
+    static public function writeDetails($transaction_id, $period, $client_id, $amount, $commission, $buy_campaign_id = null)
     {
         DB::table('client_balance_details')->insert([
             'transaction_id' => $transaction_id,
             'period' => $period,
             'client_id' => $client_id,
             'amount' => $amount,
+            'commission' => $commission,
             'buy_campaign_id' => $buy_campaign_id,
         ]);
     }

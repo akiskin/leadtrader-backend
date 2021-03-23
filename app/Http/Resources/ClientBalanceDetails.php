@@ -19,6 +19,7 @@ class ClientBalanceDetails extends JsonResource
             'period' => $this->period,
             'client_id' => $this->client_id,
             'amount' => $this->amount,
+            'commission' => $this->commission,
             $this->mergeWhen($this->whenLoaded('transaction'), ['transaction' => [
                 'id' => $this->transaction->id,
                 'created_at' => $this->transaction->created_at,

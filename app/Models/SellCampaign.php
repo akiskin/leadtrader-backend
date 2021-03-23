@@ -13,6 +13,7 @@ class SellCampaign extends Model
     use HasUuid;
 
     protected $fillable = [
+        'product_id',
         'status',
         'stop_price',
         'expiration'
