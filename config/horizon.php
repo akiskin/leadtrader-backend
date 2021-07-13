@@ -184,8 +184,13 @@ return [
                 'balanceCooldown' => 3,
             ],
             'supervisor-selling' => [
+                'connection' => 'redis',
                 'queue' => ['selling'],
+                'balance' => 'auto',
                 'maxProcesses' => 1,
+                'memory' => 128,
+                'tries' => 1,
+                'nice' => 0,
             ],
         ],
 
@@ -194,8 +199,13 @@ return [
                 'maxProcesses' => 3,
             ],
             'supervisor-selling' => [
+                'connection' => 'redis',
                 'queue' => ['selling'],
+                'balance' => 'auto',
                 'maxProcesses' => 1,
+                'memory' => 128,
+                'tries' => 1,
+                'nice' => 0,
             ],
         ],
     ],
