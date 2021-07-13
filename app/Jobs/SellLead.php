@@ -19,11 +19,11 @@ class SellLead implements ShouldQueue, ShouldBeUniqueUntilProcessing
 
     public string $leadId;
 
-    public int $tries = 3;
+    public int $tries = 30;
 
     public int $timeout = 30;
 
-    public $backoff = [31, 91, 181];
+    public $queue = 'selling';
 
     public function __construct(string $leadId)
     {
@@ -42,7 +42,7 @@ class SellLead implements ShouldQueue, ShouldBeUniqueUntilProcessing
 
     public function middleware(): array
     {
-        return [(new WithoutOverlapping())->releaseAfter(10)->expireAfter(30)];
+        return [(new WithoutOverlapping())->expireAfter(30)];
     }
 
     public function handle()
